@@ -1,0 +1,14 @@
+{
+  
+  "apps": [
+    {
+      "app_id": "app_49f4d85b-f749-45e6-9e7d-7088cc1947b3",
+      "org_id": "user_a907709f-8624-4df6-9af8-8f3511b99add",
+      "deploy_url": "https://push-n3-par-clevercloud-customers.services.clever-cloud.com/app_49f4d85b-f749-45e6-9e7d-7088cc1947b3.git",
+      "git_ssh_url": "git+ssh://git@push-n3-par-clevercloud-customers.services.clever-cloud.com/app_49f4d85b-f749-45e6-9e7d-7088cc1947b3.git",
+      "name": "dtqverse-backend",
+      "alias": "dtqverse-backend"
+    }
+  ]
+  
+}
