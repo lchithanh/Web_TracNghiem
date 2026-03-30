@@ -11,10 +11,10 @@ const axiosClient = axios.create({
   withCredentials: true,
 });
 
-// ==================== THÊM MỚI: AUTO LOGOUT IDLE ====================
+// ==================== AUTO LOGOUT IDLE ====================
 let lastActivity = Date.now();
 let idleInterval = null;
-const IDLE_TIMEOUT = 1 * 60 * 1000; // 30 phút
+const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 phút
 
 const resetActivity = () => {
   lastActivity = Date.now();
@@ -48,14 +48,18 @@ const checkIdleAndLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("role");
+<<<<<<< HEAD
     redirectToLogin();
+=======
+    window.location.replace("/#/login");
+>>>>>>> 583473b (update timeout axiosClient+ app.jsx BrowserRouter  sang HashRouter)
   }
 };
 
 const events = ["click", "mousemove", "keydown", "scroll", "touchstart", "mousedown"];
 events.forEach(event => window.addEventListener(event, resetActivity));
 idleInterval = setInterval(checkIdleAndLogout, 10000);
-// ==================== KẾT THÚC THÊM MỚI ====================
+// ==================== KẾT THÚC ====================
 
 // ✅ Request interceptor: Tự động thêm token vào header
 axiosClient.interceptors.request.use(
@@ -78,7 +82,11 @@ axiosClient.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("role");
+<<<<<<< HEAD
       redirectToLogin();
+=======
+      window.location.replace("/#/login");
+>>>>>>> 583473b (update timeout axiosClient+ app.jsx BrowserRouter  sang HashRouter)
     }
     
     // Xử lý lỗi 403
