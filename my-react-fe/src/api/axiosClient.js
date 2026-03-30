@@ -14,7 +14,7 @@ const axiosClient = axios.create({
 // ==================== AUTO LOGOUT IDLE ====================
 let lastActivity = Date.now();
 let idleInterval = null;
-const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 phút
+const IDLE_TIMEOUT = 1 * 60 * 1000; // 30 phút
 
 const resetActivity = () => {
   lastActivity = Date.now();
