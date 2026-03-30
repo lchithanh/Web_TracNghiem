@@ -14,7 +14,7 @@ const axiosClient = axios.create({
 // ==================== THÊM MỚI: AUTO LOGOUT IDLE ====================
 let lastActivity = Date.now();
 let idleInterval = null;
-const IDLE_TIMEOUT = 1* 60 * 1000; // 30 phút
+const IDLE_TIMEOUT = 1 * 60 * 1000; // 30 phút
 
 const resetActivity = () => {
   lastActivity = Date.now();
@@ -32,7 +32,8 @@ const checkIdleAndLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("role");
-    window.location.href = "/login";
+    // ✅ SỬA: Lấy origin từ window.location để deploy hoạt động
+    window.location.href = window.location.origin + "/login";
   }
 };
 
@@ -62,7 +63,8 @@ axiosClient.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("role");
-      window.location.href = "/login";
+      // ✅ SỬA: Lấy origin từ window.location để deploy hoạt động
+      window.location.href = window.location.origin + "/login";
     }
     
     // Xử lý lỗi 403
