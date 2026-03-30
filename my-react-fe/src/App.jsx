@@ -1,6 +1,6 @@
 // src/App.jsx
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'; // Đổi BrowserRouter thành HashRouter
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Admin pages
@@ -119,11 +119,11 @@ const AppRoutes = () => {
 
 function App() {
   return (
-    <HashRouter> {/* Đã đổi từ BrowserRouter sang HashRouter */}
+    <BrowserRouter>
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
 
