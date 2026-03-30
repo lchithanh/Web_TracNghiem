@@ -20,22 +20,6 @@ const resetActivity = () => {
   lastActivity = Date.now();
 };
 
-// Hàm chuyển hướng đến login
-const redirectToLogin = () => {
-  // Lấy đường dẫn hiện tại (bao gồm cả subpath nếu có)
-  const currentPath = window.location.pathname;
-  const loginPath = "/login";
-  
-  // Nếu đã ở trang login thì không redirect
-  if (currentPath === loginPath || currentPath === "/" + loginPath) {
-    return;
-  }
-  
-  // Sử dụng window.location.href với đường dẫn tương đối
-  // Cách này sẽ giữ nguyên subpath
-  window.location.href = loginPath;
-};
-
 const checkIdleAndLogout = () => {
   const token = localStorage.getItem("token");
   if (!token) return;
@@ -48,15 +32,7 @@ const checkIdleAndLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("role");
-<<<<<<< HEAD
     window.location.replace("/#/login");
-=======
-<<<<<<< HEAD
-    redirectToLogin();
-=======
-    window.location.replace("/#/login");
->>>>>>> 583473b (update timeout axiosClient+ app.jsx BrowserRouter  sang HashRouter)
->>>>>>> 538b2b4a2ffc2e1d91995e542545b99768680d3b
   }
 };
 
@@ -86,15 +62,7 @@ axiosClient.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("role");
-<<<<<<< HEAD
       window.location.replace("/#/login");
-=======
-<<<<<<< HEAD
-      redirectToLogin();
-=======
-      window.location.replace("/#/login");
->>>>>>> 583473b (update timeout axiosClient+ app.jsx BrowserRouter  sang HashRouter)
->>>>>>> 538b2b4a2ffc2e1d91995e542545b99768680d3b
     }
     
     // Xử lý lỗi 403
