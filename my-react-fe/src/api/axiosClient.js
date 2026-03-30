@@ -14,10 +14,26 @@ const axiosClient = axios.create({
 // ==================== THÊM MỚI: AUTO LOGOUT IDLE ====================
 let lastActivity = Date.now();
 let idleInterval = null;
-const IDLE_TIMEOUT = 1 * 60 * 1000; // 30 phút
+const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 phút
 
 const resetActivity = () => {
   lastActivity = Date.now();
+};
+
+// Hàm chuyển hướng đến login
+const redirectToLogin = () => {
+  // Lấy đường dẫn hiện tại (bao gồm cả subpath nếu có)
+  const currentPath = window.location.pathname;
+  const loginPath = "/login";
+  
+  // Nếu đã ở trang login thì không redirect
+  if (currentPath === loginPath || currentPath === "/" + loginPath) {
+    return;
+  }
+  
+  // Sử dụng window.location.href với đường dẫn tương đối
+  // Cách này sẽ giữ nguyên subpath
+  window.location.href = loginPath;
 };
 
 const checkIdleAndLogout = () => {
@@ -32,8 +48,7 @@ const checkIdleAndLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("role");
-    // ✅ SỬA: Lấy origin từ window.location để deploy hoạt động
-    window.location.href = window.location.origin + "/login";
+    redirectToLogin();
   }
 };
 
@@ -63,8 +78,7 @@ axiosClient.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("role");
-      // ✅ SỬA: Lấy origin từ window.location để deploy hoạt động
-      window.location.href = window.location.origin + "/login";
+      redirectToLogin();
     }
     
     // Xử lý lỗi 403
