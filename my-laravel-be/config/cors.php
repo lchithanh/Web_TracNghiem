@@ -12,6 +12,8 @@ return [
     'http://127.0.0.1:5173',
     'https://phamhuutai.io.vn',
     'https://www.phamhuutai.io.vn',
+    'https://web-tracnghiem-fe.onrender.com',
+    'https://web-tracnghiem.onrender.com',
 ],
 
     'allowed_origin_patterns' => [],
