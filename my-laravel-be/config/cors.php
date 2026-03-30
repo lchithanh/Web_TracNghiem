@@ -8,6 +8,10 @@ return [
     'allowed_origins' => [
     'https://dtqverse.io.vn',
     'https://dtqverse.onrender.com',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://phamhuutai.io.vn',
+    'https://www.phamhuutai.io.vn',
 ],
 
     'allowed_origin_patterns' => [],
