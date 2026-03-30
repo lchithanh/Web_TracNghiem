@@ -12,17 +12,20 @@ export default function useHome() {
 
   useEffect(() => {
     // 1️⃣ Lấy CSRF cookie từ Laravel Sanctum
-    axios.get("http://localhost:8000/sanctum/csrf-cookie")
+    // axios.get("http://localhost:8000/sanctum/csrf-cookie")
+    axios.get(`${import.meta.env.VITE_API_URL}/sanctum/csrf-cookie`)
       .then(() => {
         // 2️⃣ Gọi API login test (nếu bạn đã có user)
-        return axios.post("http://localhost:8000/login", {
+        // return axios.post("http://localhost:8000/login", {
+        return axios.post(`${import.meta.env.VITE_API_URL}/login`, {
           email: "test@example.com",
           password: "password123"
         });
       })
       .then(() => {
         // 3️⃣ Gọi API /api/home sau khi đã login
-        return axios.get("http://localhost:8000/api/home");
+        // return axios.get("http://localhost:8000/api/home");
+        return axios.get(`${import.meta.env.VITE_API_URL}/api/home`);
       })
       .then((res) => {
         setData(res.data);
