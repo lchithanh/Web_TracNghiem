@@ -11,6 +11,36 @@ const axiosClient = axios.create({
   withCredentials: true,
 });
 
+// ==================== THÊM MỚI: AUTO LOGOUT IDLE ====================
+let lastActivity = Date.now();
+let idleInterval = null;
+const IDLE_TIMEOUT = 1* 60 * 1000; // 30 phút
+
+const resetActivity = () => {
+  lastActivity = Date.now();
+};
+
+const checkIdleAndLogout = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+  
+  const now = Date.now();
+  const idleTime = now - lastActivity;
+  
+  if (idleTime >= IDLE_TIMEOUT) {
+    console.log(`Không hoạt động ${Math.floor(idleTime / 60000)} phút, đăng xuất!`);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("role");
+    window.location.href = "/login";
+  }
+};
+
+const events = ["click", "mousemove", "keydown", "scroll", "touchstart", "mousedown"];
+events.forEach(event => window.addEventListener(event, resetActivity));
+idleInterval = setInterval(checkIdleAndLogout, 10000);
+// ==================== KẾT THÚC THÊM MỚI ====================
+
 // ✅ Request interceptor: Tự động thêm token vào header
 axiosClient.interceptors.request.use(
   (config) => {
@@ -32,7 +62,7 @@ axiosClient.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("role");
-      // window.location.href = "/login";
+      window.location.href = "/login";
     }
     
     // Xử lý lỗi 403

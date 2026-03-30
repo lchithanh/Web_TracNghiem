@@ -6,6 +6,9 @@ const ClassManager = () => {
   const [classrooms, setClassrooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [formData, setFormData] = useState({ name: '', description: '' });
 
   useEffect(() => {
     fetchClassrooms();
@@ -14,8 +17,7 @@ const ClassManager = () => {
   const fetchClassrooms = async () => {
     try {
       const response = await axiosClient.get('/classrooms');
-      const data = response.data?.data || response.data || [];
-      setClassrooms(data);
+      setClassrooms(response.data?.data || response.data || []);
     } catch (error) {
       console.error('Lỗi tải lớp học:', error);
     } finally {
@@ -24,23 +26,39 @@ const ClassManager = () => {
   };
 
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`Giải tán lớp "${name}"?\n\nHành động này sẽ xóa lớp và gỡ tất cả học sinh, bài thi khỏi lớp.`)) return;
+    if (!window.confirm(`Giải tán lớp "${name}"?`)) return;
     try {
-      const response = await axiosClient.delete(`/classrooms/${id}`);
-      alert(response.data.message || 'Đã giải tán lớp thành công!');
+      await axiosClient.delete(`/classrooms/${id}`);
+      alert('Đã giải tán lớp thành công!');
       fetchClassrooms();
     } catch (error) {
-      console.error('Lỗi chi tiết:', error.response?.data);
       alert('Lỗi: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (!formData.name.trim()) return alert('Vui lòng nhập tên lớp');
+    
+    setSubmitting(true);
+    try {
+      await axiosClient.post('/classrooms', formData);
+      alert('Tạo lớp thành công!');
+      setShowModal(false);
+      setFormData({ name: '', description: '' });
+      fetchClassrooms();
+    } catch (error) {
+      alert('Lỗi: ' + (error.response?.data?.message || 'Không thể tạo lớp'));
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const copyInviteCode = (code) => {
     navigator.clipboard.writeText(code);
-    alert('Đã sao chép mã mời: ' + code);
+    alert('Đã sao chép mã: ' + code);
   };
 
-  // Lọc theo tên lớp
   const filteredClassrooms = classrooms.filter(c =>
     c.name?.toLowerCase().includes(searchName.toLowerCase())
   );
@@ -49,86 +67,114 @@ const ClassManager = () => {
 
   return (
     <div>
-      {/* Header + tìm kiếm */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">🏫 Quản lý lớp học</h1>
-        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-bold">🏫 Quản lý lớp học</h1>
+        <div className="flex gap-3">
           <input
             type="text"
-            placeholder="🔍 Tìm theo tên lớp..."
+            placeholder="🔍 Tìm lớp..."
             value={searchName}
             onChange={(e) => setSearchName(e.target.value)}
-            className="border rounded px-3 py-2 text-sm w-full sm:w-64"
+            className="border rounded px-3 py-2 text-sm w-64"
           />
-          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            + Tạo lớp mới
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            + Tạo lớp
           </button>
         </div>
       </div>
 
       {/* Danh sách lớp */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredClassrooms.map(classroom => {
-          const studentCount = classroom.students?.length || 0;
-          const examCount = classroom.exams?.length || 0;
-
-          return (
-            <div key={classroom.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="p-4 border-b">
-                <h3 className="text-lg font-semibold text-gray-800">{classroom.name}</h3>
-                {classroom.description && (
-                  <p className="text-sm text-gray-500 mt-1">{classroom.description}</p>
-                )}
+        {filteredClassrooms.map(c => (
+          <div key={c.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="p-4 border-b">
+              <h3 className="text-lg font-semibold">{c.name}</h3>
+              {c.description && <p className="text-sm text-gray-500 mt-1">{c.description}</p>}
+            </div>
+            <div className="p-4 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">👨‍🏫 Giảng viên:</span>
+                <span>{c.teacher?.name || '—'}</span>
               </div>
-
-              <div className="p-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">👨‍🏫 Giảng viên:</span>
-                  <span className="text-gray-700">{classroom.teacher?.name || '—'}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">👨‍🎓 Sinh viên:</span>
-                  <span className="text-gray-700">{studentCount} sinh viên</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">📝 Bài thi:</span>
-                  <span className={`${examCount > 0 ? 'text-green-600 font-medium' : 'text-gray-700'}`}>
-                    {examCount} bài thi
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">🔑 Mã mời:</span>
-                  <div className="flex items-center gap-2">
-                    <code className="bg-gray-100 px-2 py-1 rounded text-sm">{classroom.invite_code}</code>
-                    <button
-                      onClick={() => copyInviteCode(classroom.invite_code)}
-                      className="text-blue-500 hover:text-blue-700 text-xs"
-                    >
+              <div className="flex justify-between">
+                <span className="text-gray-500">👨‍🎓 Sinh viên:</span>
+                <span>{c.students?.length || 0} SV</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">📝 Bài thi:</span>
+                <span>{c.exams?.length || 0} bài</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500">🔑 Mã mời:</span>
+                <div className="flex gap-2">
+                  <code className="bg-gray-100 px-2 py-1 rounded text-sm">{c.invite_code || '—'}</code>
+                  {c.invite_code && (
+                    <button onClick={() => copyInviteCode(c.invite_code)} className="text-blue-500 text-xs">
                       Sao chép
                     </button>
-                  </div>
+                  )}
                 </div>
               </div>
-
-              <div className="bg-gray-50 px-4 py-3 flex justify-end gap-2">
-                <button className="text-blue-600 hover:text-blue-800 text-sm">
-                  Sửa
-                </button>
-                <button
-                  onClick={() => handleDelete(classroom.id, classroom.name)}
-                  className="text-red-600 hover:text-red-800 text-sm"
-                >
-                  Giải tán
-                </button>
-              </div>
             </div>
-          );
-        })}
+            <div className="bg-gray-50 px-4 py-3 flex justify-end gap-3">
+              <button className="text-blue-600 hover:text-blue-800">Sửa</button>
+              <button onClick={() => handleDelete(c.id, c.name)} className="text-red-600 hover:text-red-800">
+                Giải tán
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
       {filteredClassrooms.length === 0 && (
         <div className="bg-white rounded shadow p-12 text-center text-gray-500">
-          {searchName ? 'Không tìm thấy lớp học' : 'Chưa có lớp học nào'}
+          {searchName ? 'Không tìm thấy lớp' : 'Chưa có lớp học nào'}
+        </div>
+      )}
+
+      {/* Modal tạo lớp */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4">➕ Tạo lớp mới</h2>
+            <form onSubmit={handleCreate}>
+              <input
+                type="text"
+                placeholder="Tên lớp *"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className="w-full border rounded-lg px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-500 outline-none"
+                autoFocus
+              />
+              <textarea
+                placeholder="Mô tả (không bắt buộc)"
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                rows={3}
+                className="w-full border rounded-lg px-3 py-2 mb-4 resize-none focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg disabled:opacity-50"
+                >
+                  {submitting ? 'Đang tạo...' : 'Tạo lớp'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 bg-gray-200 hover:bg-gray-300 py-2 rounded-lg"
+                >
+                  Hủy
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

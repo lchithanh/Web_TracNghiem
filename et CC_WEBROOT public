@@ -1,0 +1,11 @@
+[33mcommit bf4a4f03d803e9f5560bf4d8351739cc7bc1ddbc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31mclever/master[m[33m)[m
+Author: Thanh <luchithanh2004@gmail.com>
+Date:   Mon Mar 30 00:54:14 2026 +0700
+
+    Update .clever.json config for Clever Cloud
+
+[33mcommit 62c5986a492d5e722760f6be00afe331ae0ab308[m
+Author: Thanh <luchithanh2004@gmail.com>
+Date:   Mon Mar 30 00:02:13 2026 +0700
+
+    Initial commit

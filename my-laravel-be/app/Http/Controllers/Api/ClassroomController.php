@@ -100,7 +100,7 @@ class ClassroomController extends Controller
             if ($user->role !== 'teacher') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Bạn không có quyền tạo lớp học'
+                    'message' => 'Bạn nên để giảng viên tạo lớp học '
                 ], 403);
             }
             
