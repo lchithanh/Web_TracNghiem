@@ -378,4 +378,21 @@ class UserController extends Controller
             ], 500);
         }
     }
+    
+   public function getSubjects($id)
+{
+    try {
+        $teacher = User::with('subjects')->where('role', 'teacher')->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $teacher->subjects
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Không tìm thấy giáo viên hoặc lỗi server'
+        ], 404);
+    }
+}
 }

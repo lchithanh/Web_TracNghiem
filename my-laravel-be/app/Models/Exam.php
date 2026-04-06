@@ -57,4 +57,8 @@ protected $fillable = [
     {
         return $this->belongsToMany(Classroom::class, 'exam_class', 'exam_id', 'class_id');
     }
+    public function teachers()
+{
+    return $this->belongsToMany(User::class, 'exam_teacher', 'exam_id', 'teacher_id');
+}
 }

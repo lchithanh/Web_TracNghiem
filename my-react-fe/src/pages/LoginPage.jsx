@@ -99,8 +99,8 @@ const LoginPage = () => {
         
         <div className="mt-6 text-center text-sm text-gray-500">
           <p>Demo: admin@quizpro.edu.vn / 123456</p>
-          <p>Teacher: thang.gv@quizpro.edu.vn / 123456</p>
-          <p>Student: an.hs@quizpro.edu.vn / 123456</p>
+          <p>Teacher: teachercntt@quizpro.edu.vn / 123456</p>
+          <p>Student: DH52201447@student.stu.edu.vn / 123456</p>
         </div>
       </div>
     </div>

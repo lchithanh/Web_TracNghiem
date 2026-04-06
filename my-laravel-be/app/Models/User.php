@@ -68,4 +68,13 @@ public function classrooms()
     {
         return $this->hasMany(Exam::class, 'created_by');
     }
+    public function subjects()
+{
+    return $this->belongsToMany(
+        Subject::class,
+        'teacher_subject',
+        'teacher_id',
+        'subject_id'
+    );
+}
 }

@@ -10,6 +10,7 @@ import SubjectManagerAdmin from './pages/admin/SubjectManager';
 import ExamManagerAdmin from './pages/admin/ExamManager';
 import ClassManagerAdmin from './pages/admin/ClassManager';
 import HomeAdmin from './pages/admin/HomeAdmin';
+import TeacherManager from './pages/admin/TeacherManager'; // <-- import thêm
 
 // Teacher pages
 import HomeTeacher from './pages/teacher/HomeTeacher';
@@ -63,6 +64,8 @@ const AppRoutes = () => {
         <Route path="/admin" element={<HomeAdmin />}>
           <Route index element={<DashboardAdmin />} />
           <Route path="users" element={<UserManager />} />
+
+          <Route path="teachers" element={<TeacherManager />} /> {/* <-- route mới */}
           <Route path="subjects" element={<SubjectManagerAdmin />} />
           <Route path="exams" element={<ExamManagerAdmin />} />
           <Route path="classes" element={<ClassManagerAdmin />} />
@@ -90,6 +93,7 @@ const AppRoutes = () => {
           <Route path="subjects/:id" element={<SubjectExams />} />
           <Route path="exams" element={<ExamsStudent />} />
           <Route path="exams/:id" element={<ExamDetail />} />
+          
           <Route path="result/:attemptId" element={<ExamResult />} />
           <Route path="attempts" element={<AttemptsStudent />} />
           <Route path="classes" element={<ClassesStudent />} />

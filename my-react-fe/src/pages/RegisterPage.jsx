@@ -25,42 +25,50 @@ const RegisterPage = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Validate
-    if (formData.password !== formData.confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp');
-      return;
+  e.preventDefault();
+
+  // Validate MSSV nếu role = student
+  if (formData.role === 'student' && formData.studentCode) {
+  const mssvRegex = /^[A-Z]{2}[0-9]{8}$/i; // DH52200554 ok
+  if (!mssvRegex.test(formData.studentCode)) {
+    setError('Mã sinh viên không hợp lệ (ví dụ: DH52200554)');
+    return;
+  }
+}
+
+  // Validate mật khẩu
+  if (formData.password !== formData.confirmPassword) {
+    setError('Mật khẩu xác nhận không khớp');
+    return;
+  }
+
+  if (formData.password.length < 6) {
+    setError('Mật khẩu phải có ít nhất 6 ký tự');
+    return;
+  }
+
+  if (!formData.fullName.trim()) {
+    setError('Vui lòng nhập họ và tên');
+    return;
+  }
+
+  setLoading(true);
+  setError('');
+
+  try {
+    const result = await register(formData);
+    if (result.success) {
+      alert(result.message);
+      navigate('/login');
+    } else {
+      setError(result.message);
     }
-    
-    if (formData.password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự');
-      return;
-    }
-    
-    if (!formData.fullName.trim()) {
-      setError('Vui lòng nhập họ và tên');
-      return;
-    }
-    
-    setLoading(true);
-    setError('');
-    
-    try {
-      const result = await register(formData);
-      
-      if (result.success) {
-        alert(result.message);
-        navigate('/login');
-      } else {
-        setError(result.message);
-      }
-    } catch (err) {
-      setError('Đã có lỗi xảy ra. Vui lòng thử lại.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    setError('Đã có lỗi xảy ra. Vui lòng thử lại.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">

@@ -1,6 +1,4 @@
 <?php
-// app/Models/Subject.php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,16 +10,23 @@ class Subject extends Model
 
     protected $fillable = ['name', 'description', 'created_by'];
 
-    // KHÔNG cần dòng này nếu đã có timestamps
-    // public $timestamps = false;
-
     public function exams()
     {
         return $this->hasMany(Exam::class);
     }
-    
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function teachers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'teacher_subject',
+            'subject_id',
+            'teacher_id'
+        )->where('role', 'teacher');
     }
 }

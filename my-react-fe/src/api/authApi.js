@@ -2,7 +2,8 @@
 import axios from "axios";
 
 // const API_URL = "http://localhost:8000/api";
-import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL; // ← phải gán vào biến
+
 
 const getHeaders = (token) => ({
   "Content-Type": "application/json",

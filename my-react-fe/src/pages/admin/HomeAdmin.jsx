@@ -1,4 +1,4 @@
-// src/pages/admin/HomeAdmin.jsx
+﻿// src/pages/admin/HomeAdmin.jsx
 import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -11,6 +11,7 @@ const HomeAdmin = () => {
   const menuItems = [
     { path: '/admin', label: '🏠 Tổng quan' },
     { path: '/admin/users', label: '👥 Quản lý người dùng' },
+      { path: '/admin/teachers', label: '👨‍🏫 Quản lý giảng viên' }, // NEW
     { path: '/admin/subjects', label: '📚 Quản lý môn học' },
     { path: '/admin/exams', label: '📝 Quản lý bài thi' },
     { path: '/admin/classes', label: '👥 Quản lý lớp học' },

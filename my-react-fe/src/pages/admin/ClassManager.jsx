@@ -10,18 +10,39 @@ const ClassManager = () => {
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({ name: '', description: '' });
 
+  const [editingId, setEditingId] = useState(null);
+  const [editData, setEditData] = useState({ name: '', description: '' });
+
   useEffect(() => {
     fetchClassrooms();
   }, []);
 
   const fetchClassrooms = async () => {
+    setLoading(true);
     try {
-      const response = await axiosClient.get('/classrooms');
-      setClassrooms(response.data?.data || response.data || []);
-    } catch (error) {
-      console.error('Lỗi tải lớp học:', error);
+      const res = await axiosClient.get('/classrooms');
+      setClassrooms(res.data?.data || []);
+    } catch (err) {
+      console.error('Lỗi tải lớp học:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (!formData.name.trim()) return alert('Vui lòng nhập tên lớp');
+    setSubmitting(true);
+    try {
+      await axiosClient.post('/classrooms', formData);
+      alert('Tạo lớp thành công!');
+      setShowModal(false);
+      setFormData({ name: '', description: '' });
+      fetchClassrooms();
+    } catch (err) {
+      alert('Lỗi: ' + (err.response?.data?.message || 'Không thể tạo lớp'));
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -31,26 +52,35 @@ const ClassManager = () => {
       await axiosClient.delete(`/classrooms/${id}`);
       alert('Đã giải tán lớp thành công!');
       fetchClassrooms();
-    } catch (error) {
-      alert('Lỗi: ' + (error.response?.data?.message || error.message));
+    } catch (err) {
+      alert('Lỗi: ' + (err.response?.data?.message || err.message));
     }
   };
 
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    if (!formData.name.trim()) return alert('Vui lòng nhập tên lớp');
-    
-    setSubmitting(true);
+  const handleEdit = (classroom) => {
+    setEditingId(classroom.id);
+    setEditData({ name: classroom.name || '', description: classroom.description || '' });
+  };
+
+  const handleUpdate = async (id) => {
+    if (!editData.name.trim()) return alert('Tên lớp không được để trống');
     try {
-      await axiosClient.post('/classrooms', formData);
-      alert('Tạo lớp thành công!');
-      setShowModal(false);
-      setFormData({ name: '', description: '' });
+      await axiosClient.put(`/classrooms/${id}`, editData);
+      alert('Cập nhật lớp thành công');
+      setEditingId(null);
       fetchClassrooms();
-    } catch (error) {
-      alert('Lỗi: ' + (error.response?.data?.message || 'Không thể tạo lớp'));
-    } finally {
-      setSubmitting(false);
+    } catch (err) {
+      alert('Lỗi: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleChangeInviteCode = async (id) => {
+    try {
+      const res = await axiosClient.post(`/classrooms/${id}/regenerate-code`);
+      alert('Mã lớp mới: ' + res.data.data.invite_code);
+      fetchClassrooms();
+    } catch (err) {
+      alert('Lỗi đổi mã lớp: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -75,7 +105,7 @@ const ClassManager = () => {
             type="text"
             placeholder="🔍 Tìm lớp..."
             value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
+            onChange={e => setSearchName(e.target.value)}
             className="border rounded px-3 py-2 text-sm w-64"
           />
           <button
@@ -92,9 +122,42 @@ const ClassManager = () => {
         {filteredClassrooms.map(c => (
           <div key={c.id} className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="p-4 border-b">
-              <h3 className="text-lg font-semibold">{c.name}</h3>
-              {c.description && <p className="text-sm text-gray-500 mt-1">{c.description}</p>}
+              {editingId === c.id ? (
+                <>
+                  <input
+                    value={editData.name}
+                    onChange={e => setEditData({ ...editData, name: e.target.value })}
+                    className="w-full border rounded px-2 py-1 mb-1"
+                  />
+                  <textarea
+                    value={editData.description}
+                    onChange={e => setEditData({ ...editData, description: e.target.value })}
+                    rows={2}
+                    className="w-full border rounded px-2 py-1 resize-none"
+                  />
+                  <div className="flex justify-end gap-2 mt-2">
+                    <button
+                      onClick={() => handleUpdate(c.id)}
+                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
+                    >
+                      Lưu
+                    </button>
+                    <button
+                      onClick={() => setEditingId(null)}
+                      className="bg-gray-300 hover:bg-gray-400 px-3 py-1 rounded text-sm"
+                    >
+                      Hủy
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-lg font-semibold">{c.name}</h3>
+                  {c.description && <p className="text-sm text-gray-500 mt-1">{c.description}</p>}
+                </>
+              )}
             </div>
+
             <div className="p-4 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-500">👨‍🏫 Giảng viên:</span>
@@ -113,19 +176,41 @@ const ClassManager = () => {
                 <div className="flex gap-2">
                   <code className="bg-gray-100 px-2 py-1 rounded text-sm">{c.invite_code || '—'}</code>
                   {c.invite_code && (
-                    <button onClick={() => copyInviteCode(c.invite_code)} className="text-blue-500 text-xs">
-                      Sao chép
-                    </button>
+                    <>
+                      <button
+                        onClick={() => copyInviteCode(c.invite_code)}
+                        className="text-blue-500 text-xs"
+                      >
+                        Sao chép
+                      </button>
+                      <button
+  onClick={() => handleChangeInviteCode(c.id)}
+  className="bg-green-100 border border-green-500 text-green-700 px-3 py-1 rounded hover:bg-green-200 transition text-sm"
+>
+  Đổi mã
+</button>
+                    </>
                   )}
                 </div>
               </div>
             </div>
-            <div className="bg-gray-50 px-4 py-3 flex justify-end gap-3">
-              <button className="text-blue-600 hover:text-blue-800">Sửa</button>
-              <button onClick={() => handleDelete(c.id, c.name)} className="text-red-600 hover:text-red-800">
-                Giải tán
-              </button>
-            </div>
+
+            {editingId !== c.id && (
+              <div className="bg-gray-50 px-4 py-3 flex justify-end gap-3">
+                <button
+  onClick={() => handleEdit(c)}
+  className="bg-blue-100 border border-blue-500 text-blue-700 px-3 py-1 rounded hover:bg-blue-200 transition text-sm"
+>
+  Sửa
+</button>
+<button
+  onClick={() => handleDelete(c.id, c.name)}
+  className="bg-red-100 border border-red-500 text-red-700 px-3 py-1 rounded hover:bg-red-200 transition text-sm"
+>
+  Giải tán
+</button>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -146,14 +231,14 @@ const ClassManager = () => {
                 type="text"
                 placeholder="Tên lớp *"
                 value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
                 className="w-full border rounded-lg px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-500 outline-none"
                 autoFocus
               />
               <textarea
                 placeholder="Mô tả (không bắt buộc)"
                 value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                onChange={e => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
                 className="w-full border rounded-lg px-3 py-2 mb-4 resize-none focus:ring-2 focus:ring-blue-500 outline-none"
               />

@@ -296,64 +296,59 @@ class ClassroomController extends Controller
      * Giao bài thi cho lớp
      */
     public function assignExam(Request $request, $classId)
-    {
-        try {
-            $user = Auth::user();
-            
-            if ($user->role !== 'teacher') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Không có quyền'
-                ], 403);
-            }
-            
-            $classroom = Classroom::findOrFail($classId);
-            
-            if ($classroom->teacher_id !== $user->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Bạn không có quyền giao bài cho lớp này'
-                ], 403);
-            }
-            
-            $validated = $request->validate([
-                'exam_id' => 'required|exists:exams,id'
-            ]);
-            
-            $exam = Exam::findOrFail($validated['exam_id']);
-            
-            $subject = $exam->subject;
-            if ($subject->created_by != $user->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Bạn không có quyền giao bài thi này'
-                ], 403);
-            }
-            
-            $alreadyAssigned = $classroom->exams()->where('exam_id', $exam->id)->exists();
-            
-            if ($alreadyAssigned) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Bài thi đã được giao cho lớp này'
-                ], 400);
-            }
-            
-            $classroom->exams()->attach($exam->id);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Giao bài thi thành công'
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Assign exam error: ' . $e->getMessage());
+{
+    try {
+        $user = Auth::user();
+
+        // Chỉ teacher hoặc admin mới có quyền
+        if (!in_array($user->role, ['teacher', 'admin'])) {
+            return response()->json([   
+                'success' => false,
+                'message' => 'Không có quyền'
+            ], 403);
+        }
+
+        $classroom = Classroom::findOrFail($classId);
+
+        // Nếu là teacher thì phải là teacher của lớp
+        if ($user->role === 'teacher' && $classroom->teacher_id !== $user->id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Bạn không có quyền giao bài cho lớp này'
+            ], 403);
         }
+
+        $validated = $request->validate([
+            'exam_id' => 'required|exists:exams,id'
+        ]);
+
+        $exam = Exam::findOrFail($validated['exam_id']);
+
+        // Admin hoặc teacher của lớp đều được giao bài, bỏ check created_by
+        $alreadyAssigned = $classroom->exams()->where('exam_id', $exam->id)->exists();
+
+        if ($alreadyAssigned) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bài thi đã được giao cho lớp này'
+            ], 400);
+        }
+
+        $classroom->exams()->attach($exam->id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Giao bài thi thành công'
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Assign exam error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Lỗi: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Lấy danh sách bài thi đã giao cho lớp
@@ -425,4 +420,5 @@ class ClassroomController extends Controller
             ], 500);
         }
     }
+    
 }

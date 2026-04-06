@@ -15,6 +15,7 @@ class Question extends Model
         'content',
         'image',
         'level',
+        
     ];
 
     // TẮT timestamps vì bảng không có created_at, updated_at

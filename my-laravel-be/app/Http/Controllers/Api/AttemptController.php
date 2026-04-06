@@ -266,12 +266,12 @@ class AttemptController extends Controller
             $exam = Exam::findOrFail($examId);
             $subject = $exam->subject;
             
-            if ($user->role === 'teacher' && $subject->created_by != $user->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Không có quyền xem bài làm của bài thi này'
-                ], 403);
-            }
+            if ($user->role === 'teacher' && !$exam->subject->teachers->contains($user->id)) {
+    return response()->json([
+        'success' => false,
+        'message' => 'Không có quyền xem bài làm của bài thi này'
+    ], 403);
+}
             
             $attempts = Attempt::where('exam_id', $examId)
                 ->with('user')

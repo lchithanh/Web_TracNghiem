@@ -1,4 +1,4 @@
-// src/pages/teacher/QuestionManager.jsx
+﻿// src/pages/teacher/QuestionManager.jsx
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';

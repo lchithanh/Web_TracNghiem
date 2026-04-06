@@ -16,7 +16,7 @@ class QuestionController extends Controller
     /**
      * Danh sách câu hỏi theo bài thi
      */
-    public function index(Request $request)
+     public function index(Request $request)
     {
         try {
             $examId = $request->exam_id;
@@ -44,6 +44,7 @@ class QuestionController extends Controller
                 ], 403);
             }
             
+            // Eager load answers an toàn
             $questions = Question::where('exam_id', $examId)
                 ->with('answers')
                 ->orderBy('id')
@@ -59,6 +60,7 @@ class QuestionController extends Controller
             ]);
             
         } catch (\Exception $e) {
+            Log::error('Question index error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi: ' . $e->getMessage()

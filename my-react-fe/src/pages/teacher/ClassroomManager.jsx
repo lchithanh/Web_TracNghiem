@@ -1,292 +1,298 @@
 // src/pages/teacher/ClassroomManager.jsx
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axiosClient from '../../api/axiosClient';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axiosClient from "../../api/axiosClient";
 
-const ClassroomManager = () => {
+export default function ClassroomManager() {
   const navigate = useNavigate();
+
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [editingClass, setEditingClass] = useState(null);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
+
+  const [editing, setEditing] = useState(null);
   const [selectedClass, setSelectedClass] = useState(null);
+
   const [inviteInfo, setInviteInfo] = useState(null);
-  const [formData, setFormData] = useState({ name: '', description: '' });
-  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetchClasses();
-  }, []);
+  const [form, setForm] = useState({ name: "", description: "" });
 
+  // ================= FETCH =================
   const fetchClasses = async () => {
     try {
-      const res = await axiosClient.get('/classrooms');
-      setClasses(res.data?.data || []);
+      setLoading(true);
+      const res = await axiosClient.get("/classrooms");
+      setClasses(Array.isArray(res.data?.data) ? res.data.data : []);
     } catch (err) {
       console.error(err);
+      alert(err.response?.data?.message || "Không thể tải danh sách lớp");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchClasses();
+  }, []);
+
+  // ================= MODAL CREATE/EDIT =================
   const openModal = (cls = null) => {
-    if (cls) {
-      setEditingClass(cls);
-      setFormData({ name: cls.name, description: cls.description || '' });
-    } else {
-      setEditingClass(null);
-      setFormData({ name: '', description: '' });
-    }
-    setShowModal(true);
+    setEditing(cls);
+    setForm({
+      name: cls?.name || "",
+      description: cls?.description || "",
+    });
+    setModalOpen(true);
   };
 
-  const loadInviteCode = async (cls) => {
-    try {
-      console.log('Loading invite code for class:', cls.id);
-      const res = await axiosClient.get(`/classrooms/${cls.id}/invite-code`);
-      console.log('Invite code response:', res.data);
-      
-      if (res.data?.data?.invite_code) {
-        setInviteInfo({
-          invite_code: res.data.data.invite_code,
-          expires_at: res.data.data.expires_at,
-          is_valid: res.data.data.is_valid
-        });
-        setSelectedClass(cls);
-        setShowInviteModal(true);
-      } else {
-        alert('Không thể lấy mã mời');
-      }
-    } catch (err) {
-      console.error('Error loading invite code:', err);
-      alert(err.response?.data?.message || 'Lỗi tải mã mời');
-    }
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditing(null);
+    setForm({ name: "", description: "" });
   };
 
-  const regenerateCode = async () => {
-    try {
-      const res = await axiosClient.post(`/classrooms/${selectedClass.id}/regenerate-code`);
-      console.log('Regenerate response:', res.data);
-      
-      if (res.data?.data?.invite_code) {
-        setInviteInfo({
-          invite_code: res.data.data.invite_code,
-          expires_at: res.data.data.expires_at,
-          is_valid: res.data.data.is_valid
-        });
-        alert('Tạo mã mới thành công');
-      } else {
-        alert('Không thể tạo mã mới');
-      }
-    } catch (err) {
-      console.error('Error regenerating code:', err);
-      alert(err.response?.data?.message || 'Lỗi tạo mã mới');
-    }
-  };
-
-  const copyToClipboard = (text) => {
-    if (text) {
-      navigator.clipboard.writeText(text);
-      alert('Đã sao chép mã: ' + text);
-    } else {
-      alert('Không có mã để sao chép');
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  const submitClass = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
     try {
-      if (editingClass) {
-        await axiosClient.put(`/classrooms/${editingClass.id}`, formData);
-        alert('Cập nhật thành công');
+      if (editing) {
+        await axiosClient.put(`/classrooms/${editing.id}`, form);
+        alert("Cập nhật thành công");
       } else {
-        await axiosClient.post('/classrooms', formData);
-        alert('Tạo lớp thành công');
+        await axiosClient.post("/classrooms", form);
+        alert("Tạo lớp thành công");
       }
-      setShowModal(false);
+      closeModal();
       fetchClasses();
     } catch (err) {
-      alert(err.response?.data?.message || 'Lỗi');
-    } finally {
-      setSubmitting(false);
+      console.error(err);
+      alert(err.response?.data?.message || "Lỗi khi lưu lớp");
     }
   };
 
-  const handleDelete = async (id, name) => {
-    if (!window.confirm(`Xóa lớp "${name}"?`)) return;
+  // ================= DELETE =================
+  const deleteClass = async (cls) => {
+    if (!window.confirm(`Xóa lớp "${cls.name}"?`)) return;
+
     try {
-      await axiosClient.delete(`/classrooms/${id}`);
+      await axiosClient.delete(`/classrooms/${cls.id}`);
+      alert("Xóa thành công");
       fetchClasses();
-      alert('Xóa thành công');
     } catch (err) {
-      alert(err.response?.data?.message || 'Lỗi xóa');
+      console.error(err);
+      alert(err.response?.data?.message || "Lỗi khi xóa lớp");
     }
   };
 
+  // ================= INVITE CODE =================
+  const openInvite = async (cls) => {
+    try {
+      setSelectedClass(cls);
+      const res = await axiosClient.get(`/classrooms/${cls.id}/invite-code`);
+      setInviteInfo(res.data?.data || null);
+      setInviteOpen(true);
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Lỗi lấy mã mời");
+    }
+  };
+
+  const regenerateInvite = async () => {
+    try {
+      const res = await axiosClient.post(
+        `/classrooms/${selectedClass.id}/regenerate-code`
+      );
+      setInviteInfo(res.data?.data || null);
+      alert("Tạo mã mới thành công");
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Lỗi tạo mã mới");
+    }
+  };
+
+  const copyCode = async () => {
+    if (!inviteInfo?.invite_code) return;
+    await navigator.clipboard.writeText(inviteInfo.invite_code);
+    alert("Đã sao chép mã!");
+  };
+
+  // ================= UI =================
   if (loading) {
-    return <div className="text-center py-10">Đang tải...</div>;
+    return (
+      <div className="flex justify-center py-20">
+        <div className="flex items-center gap-2 text-gray-600">
+          <div className="w-5 h-5 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          Đang tải...
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Quản lý lớp học</h1>
-        <button
-          onClick={() => openModal()}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          + Tạo lớp
-        </button>
-      </div>
+    <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
+      <div className="max-w-6xl mx-auto">
+        {/* HEADER */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Quản lý lớp học</h1>
 
-      {classes.length === 0 ? (
-        <div className="bg-white rounded shadow p-12 text-center text-gray-500">
-          Chưa có lớp học nào
+          <button
+            onClick={() => openModal()}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700"
+          >
+            + Tạo lớp
+          </button>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {classes.map(cls => (
-            <div key={cls.id} className="bg-white rounded shadow p-4 flex flex-col">
-              {/* Thông tin bên trên */}
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg">{cls.name}</h3>
-                {cls.description && (
-                  <p className="text-gray-500 text-sm mt-1">{cls.description}</p>
-                )}
-                <p className="text-xs text-gray-400 mt-2">
-                  Số học sinh: {cls.students?.length || 0}
+
+        {/* LIST */}
+        {classes.length === 0 ? (
+          <div className="bg-white border rounded-xl p-10 text-center text-gray-500">
+            Chưa có lớp học nào
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {classes.map((cls) => (
+              <div
+                key={cls.id}
+                className="bg-white border rounded-xl shadow-sm p-4"
+              >
+                <h2 className="font-bold text-lg text-gray-900">{cls.name}</h2>
+
+                <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                  {cls.description || "(Chưa có mô tả)"}
                 </p>
-              </div>
-              
-              {/* Các nút bên dưới */}
-              <div className="flex gap-2 mt-4 pt-3 border-t border-gray-200">
-                <button
-                  onClick={() => navigate(`/teacher/classes/${cls.id}`)}
-                  className="flex-1 bg-blue-600 text-white py-1 rounded text-sm hover:bg-blue-700 transition-colors"
-                >
-                  Chi tiết
-                </button>
-                <button
-                  onClick={() => loadInviteCode(cls)}
-                  className="flex-1 bg-green-600 text-white py-1 rounded text-sm hover:bg-green-700 transition-colors"
-                >
-                  Mã mời
-                </button>
-                <button
-                  onClick={() => openModal(cls)}
-                  className="flex-1 bg-yellow-500 text-white py-1 rounded text-sm hover:bg-yellow-600 transition-colors"
-                >
-                  Sửa
-                </button>
-                <button
-                  onClick={() => handleDelete(cls.id, cls.name)}
-                  className="flex-1 bg-red-500 text-white py-1 rounded text-sm hover:bg-red-600 transition-colors"
-                >
-                  Xóa
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
 
-      {/* Modal tạo/sửa lớp */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">
-              {editingClass ? 'Sửa lớp học' : 'Tạo lớp học mới'}
-            </h2>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
+                <div className="text-xs text-gray-400 mt-3 flex justify-between">
+                  <span>👥 {cls.students?.length || 0} học sinh</span>
+                  <span>📝 {cls.exams?.length || 0} bài thi</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 mt-4">
+
+
+<button
+  onClick={() => navigate(`/teacher/classes/${cls.id}`)}
+  className="bg-gray-100 border border-gray-400 text-gray-800 px-3 py-1 rounded hover:bg-gray-200 transition text-sm"
+>
+  Chi tiết
+</button>
+
+<button
+  onClick={() => openInvite(cls)}
+  className="bg-green-100 border border-green-500 text-green-700 px-3 py-1 rounded hover:bg-green-200 transition text-sm"
+>
+  Mã mời
+</button>
+
+<button
+  onClick={() => openModal(cls)}
+  className="bg-yellow-100 border border-yellow-500 text-yellow-700 px-3 py-1 rounded hover:bg-yellow-200 transition text-sm"
+>
+  Sửa
+</button>
+
+<button
+  onClick={() => deleteClass(cls)}
+  className="bg-red-100 border border-red-500 text-red-700 px-3 py-1 rounded hover:bg-red-200 transition text-sm"
+>
+  Xóa
+</button>
+
+                  
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ================= MODAL CREATE/EDIT ================= */}
+        {modalOpen && (
+          <div className="fixed inset-0 bg-black/50 flex justify-center items-center p-4 z-50">
+            <div className="bg-white w-full max-w-md rounded-xl p-5">
+              <h2 className="text-lg font-bold mb-4">
+                {editing ? "Sửa lớp học" : "Tạo lớp mới"}
+              </h2>
+
+              <form onSubmit={submitClass}>
                 <input
                   type="text"
                   placeholder="Tên lớp"
-                  className="w-full p-2 border rounded"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="w-full border rounded-lg px-3 py-2 mb-3"
                   required
                 />
-              </div>
-              <div className="mb-4">
+
                 <textarea
                   placeholder="Mô tả"
-                  className="w-full p-2 border rounded"
-                  rows="3"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  value={form.description}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-3 py-2 mb-4"
+                  rows={3}
                 />
-              </div>
-              <div className="flex gap-3">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-                >
-                  {submitting ? 'Đang lưu...' : editingClass ? 'Cập nhật' : 'Tạo'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                >
-                  Hủy
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
-      {/* Modal mã mời */}
-      {showInviteModal && selectedClass && inviteInfo && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-2">Mã mời lớp</h2>
-            <p className="text-gray-600 mb-4">{selectedClass.name}</p>
-            
-            <div className="text-center mb-4">
-              <div className="bg-gray-100 p-4 rounded-lg border-2 border-dashed border-gray-300">
-                <p className="text-3xl font-mono font-bold tracking-wider text-blue-600">
-                  {inviteInfo.invite_code || 'Chưa có mã'}
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700"
+                  >
+                    Lưu
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="flex-1 bg-gray-200 py-2 rounded-lg font-semibold hover:bg-gray-300"
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ================= MODAL INVITE ================= */}
+        {inviteOpen && selectedClass && inviteInfo && (
+          <div className="fixed inset-0 bg-black/50 flex justify-center items-center p-4 z-50">
+            <div className="bg-white w-full max-w-md rounded-xl p-5">
+              <h2 className="text-lg font-bold">Mã mời lớp</h2>
+              <p className="text-sm text-gray-500 mb-4">{selectedClass.name}</p>
+
+              <div className="bg-gray-100 border border-dashed rounded-xl p-4 text-center">
+                <p className="text-3xl font-mono font-bold text-blue-700 tracking-widest">
+                  {inviteInfo.invite_code}
                 </p>
               </div>
-              {inviteInfo.invite_code && (
+
+              <div className="flex gap-2 mt-4">
                 <button
-                  onClick={() => copyToClipboard(inviteInfo.invite_code)}
-                  className="mt-2 text-blue-600 text-sm hover:text-blue-800"
+                  onClick={copyCode}
+                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700"
                 >
-                  📋 Sao chép mã
+                  Sao chép
                 </button>
-              )}
-            </div>
-            
-            <div className="mb-4 text-sm text-gray-500">
-              <p>⏰ Hết hạn: {inviteInfo.expires_at ? new Date(inviteInfo.expires_at).toLocaleDateString('vi-VN') : 'Không giới hạn'}</p>
-              <p className="mt-1 text-xs">* Học sinh nhập mã này để tham gia lớp</p>
-            </div>
-            
-            <div className="flex gap-3">
+
+                <button
+                  onClick={regenerateInvite}
+                  className="flex-1 bg-yellow-500 text-white py-2 rounded-lg font-semibold hover:bg-yellow-600"
+                >
+                  Tạo mới
+                </button>
+              </div>
+
               <button
-                onClick={regenerateCode}
-                className="flex-1 bg-yellow-600 text-white py-2 rounded hover:bg-yellow-700"
-              >
-                Tạo mã mới
-              </button>
-              <button
-                onClick={() => setShowInviteModal(false)}
-                className="flex-1 bg-gray-300 py-2 rounded hover:bg-gray-400"
+                onClick={() => setInviteOpen(false)}
+                className="w-full mt-3 bg-gray-200 py-2 rounded-lg font-semibold hover:bg-gray-300"
               >
                 Đóng
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
-};
-
-export default ClassroomManager;
+}
