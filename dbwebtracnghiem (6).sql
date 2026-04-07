@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Apr 06, 2026 at 07:07 PM
+-- Generation Time: Apr 07, 2026 at 02:33 AM
 -- Server version: 8.4.7
 -- PHP Version: 8.5.0
 
@@ -331,7 +331,7 @@ CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
   KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=217 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=222 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `personal_access_tokens`
@@ -360,11 +360,10 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 (165, 'App\\Models\\User', 30, 'auth_token', '4df37d75593bb61a50109a4395b91f8059a59ffe730df31662e840205d5e38dd', '[\"*\"]', NULL, NULL, '2026-03-30 23:11:34', '2026-03-30 23:11:34'),
 (174, 'App\\Models\\User', 2, 'auth_token', 'aa4e0279397cb6f0285db9196a064b18ccc5c2558f1313d86f925ae542ff1c28', '[\"*\"]', '2026-04-04 06:35:24', NULL, '2026-03-31 01:52:23', '2026-04-04 06:35:24'),
 (178, 'App\\Models\\User', 1, 'auth_token', 'e74abb2fc340f5d07e1e6253061d426028bb33ea0bebaeffe3530727b07ef7cb', '[\"*\"]', '2026-04-04 07:18:36', NULL, '2026-04-04 07:14:41', '2026-04-04 07:18:36'),
-(208, 'App\\Models\\User', 5, 'auth_token', '7337e93068513addda06dddd40e1f0a0e7b9a422d668da5670e6a955f6703fe8', '[\"*\"]', '2026-04-06 11:43:01', NULL, '2026-04-06 11:34:04', '2026-04-06 11:43:01'),
 (211, 'App\\Models\\User', 9, 'auth_token', '1b1635c9caf32583767a5667c4adf545475f094a3385196a2464ce59a2512f4d', '[\"*\"]', NULL, NULL, '2026-04-06 11:43:49', '2026-04-06 11:43:49'),
 (213, 'App\\Models\\User', 2, 'auth_token', 'e8559f5c66c57662539e5b4f5dea4912096aba4d5b4c25b58d114d1cdd61dfe4', '[\"*\"]', '2026-04-06 11:53:09', NULL, '2026-04-06 11:45:24', '2026-04-06 11:53:09'),
 (214, 'App\\Models\\User', 10, 'auth_token', 'c9457cfbd780cdde0d48edf9fb556b230c287099e33ab5972722f95c5e2585fe', '[\"*\"]', NULL, NULL, '2026-04-06 12:02:27', '2026-04-06 12:02:27'),
-(216, 'App\\Models\\User', 1, 'auth_token', 'e68487e800645eba262caef086ca7db572ec0b54fcb385019e137aa89cce046d', '[\"*\"]', '2026-04-06 12:03:05', NULL, '2026-04-06 12:03:05', '2026-04-06 12:03:05');
+(219, 'App\\Models\\User', 9, 'auth_token', '3669d8467af83d066de82dc6521bc3ad0330c9a64285f3f21a1cd3b514cf38ef', '[\"*\"]', '2026-04-06 12:09:53', NULL, '2026-04-06 12:09:52', '2026-04-06 12:09:53');
 
 -- --------------------------------------------------------
 
@@ -486,7 +485,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `created_at`, `updated_at`, `student_code`, `avatar`, `email_verified_at`) VALUES
-(1, 'Admin A', 'admina@quizpro.edu.vn', '$2y$12$SOzaDGUISJYbILqJ2QXfv.ke9POSy4F1DT6o8WatdemxAEczW6dPW', 'admin', NULL, '2026-04-06 11:02:52', NULL, NULL, NULL),
+(1, 'Admin A', 'admin@quizpro.edu.vn', '$2y$12$SOzaDGUISJYbILqJ2QXfv.ke9POSy4F1DT6o8WatdemxAEczW6dPW', 'admin', NULL, '2026-04-06 11:02:52', NULL, NULL, NULL),
 (2, 'Teacher Toán', 'teachertoan@quizpro.edu.vn', '$2y$12$SOzaDGUISJYbILqJ2QXfv.ke9POSy4F1DT6o8WatdemxAEczW6dPW', 'teacher', NULL, '2026-04-06 11:02:52', NULL, NULL, NULL),
 (3, 'Teacher Lý', 'teacherly@quizpro.edu.vn', '$2y$12$SOzaDGUISJYbILqJ2QXfv.ke9POSy4F1DT6o8WatdemxAEczW6dPW', 'teacher', NULL, '2026-04-06 11:02:52', NULL, NULL, NULL),
 (4, 'Teacher Hóa', 'teacherhoa@quizpro.edu.vn', '$2y$12$SOzaDGUISJYbILqJ2QXfv.ke9POSy4F1DT6o8WatdemxAEczW6dPW', 'teacher', NULL, '2026-04-06 11:02:52', NULL, NULL, NULL),
@@ -494,7 +493,7 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `created_at`, `u
 (6, 'Student 1', 'student1@quizpro.edu.vn', '$2y$12$SOzaDGUISJYbILqJ2QXfv.ke9POSy4F1DT6o8WatdemxAEczW6dPW', 'student', NULL, '2026-04-06 11:02:52', NULL, NULL, NULL),
 (7, 'Student 2', 'student2@quizpro.edu.vn', '$2y$12$SOzaDGUISJYbILqJ2QXfv.ke9POSy4F1DT6o8WatdemxAEczW6dPW', 'student', NULL, '2026-04-06 11:02:52', NULL, NULL, NULL),
 (8, 'Student 3', 'student3@quizpro.edu.vn', '$2y$12$SOzaDGUISJYbILqJ2QXfv.ke9POSy4F1DT6o8WatdemxAEczW6dPW', 'student', NULL, '2026-04-06 11:02:52', NULL, NULL, NULL),
-(9, 'Lư Chí Thanh', 'DH52201447@student.stu.edu.vnDH', '$2y$12$/STRTWidb1LXahj0/JxYU.N8.FYznROcg8gsw/IRTDBOEbSQ0t.Me', 'student', '2026-04-06 11:43:49', '2026-04-06 11:43:49', '12345678', NULL, NULL),
+(9, 'Lư Chí Thanh', 'DH52201447@student.stu.edu.vn', '$2y$12$/STRTWidb1LXahj0/JxYU.N8.FYznROcg8gsw/IRTDBOEbSQ0t.Me', 'student', '2026-04-06 11:43:49', '2026-04-06 11:43:49', '12345678', NULL, NULL),
 (10, 'DUY', 'DH52200554@student.stu.edu.vn', '$2y$12$o1Y2ciZufdVX96IHCbus6uZg0V2p.A/k4./8/qZ47MILUW8ap/ZM6', 'student', '2026-04-06 12:02:27', '2026-04-06 12:02:27', 'DH52200554', NULL, NULL);
 
 --
