@@ -36,7 +36,7 @@ const HomeStudent = () => {
       {/* Sidebar */}
       <aside
         className={[
-          "fixed top-0 left-0 h-full z-40 w-64 bg-gradient-to-b from-blue-600 to-blue-800 shadow-lg flex flex-col",
+          "fixed top-0 left-0 h-full z-40 w-64 bg-[#2563EB] shadow-lg flex flex-col",
           "transition-transform duration-200 ease-in-out",
           drawerOpen ? "translate-x-0" : "-translate-x-full",
           "sm:relative sm:translate-x-0",
