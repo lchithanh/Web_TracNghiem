@@ -39,34 +39,36 @@ const DashboardHome = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">🏠 Trang chủ</h1>
-      
+      <h1 className="text-2xl font-bold text-slate-800 mb-6">🏠 Trang chủ</h1>
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-  <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-lg">
-    <p className="text-sm opacity-90">Tổng số bài làm</p>
-    <p className="text-2xl font-bold">{stats.total_attempts}</p>
-  </div>
 
-  <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 rounded-lg">
-    <p className="text-sm opacity-90">Đã hoàn thành</p>
-    <p className="text-2xl font-bold">{stats.completed}</p>
-  </div>
+        <div className="bg-white p-4 rounded-xl shadow hover:shadow-md transition">
+          <p className="text-sm text-slate-500">Tổng số bài làm</p>
+          <p className="text-2xl font-bold text-slate-800">{stats.total_attempts}</p>
+        </div>
 
-  <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 rounded-lg">
-    <p className="text-sm opacity-90">Điểm trung bình</p>
-    <p className="text-2xl font-bold">{stats.avg_score}</p>
-  </div>
+        <div className="bg-white p-4 rounded-xl shadow hover:shadow-md transition">
+          <p className="text-sm text-slate-500">Đã hoàn thành</p>
+          <p className="text-2xl font-bold text-slate-800">{stats.completed}</p>
+        </div>
 
-  <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-4 rounded-lg">
-    <p className="text-sm opacity-90">Điểm cao nhất</p>
-    <p className="text-2xl font-bold">{stats.best_score}</p>
-  </div>
-</div>
+        <div className="bg-white p-4 rounded-xl shadow hover:shadow-md transition">
+          <p className="text-sm text-slate-500">Điểm trung bình</p>
+          <p className="text-2xl font-bold text-slate-800">{stats.avg_score}</p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl shadow hover:shadow-md transition">
+          <p className="text-sm text-slate-500">Điểm cao nhất</p>
+          <p className="text-2xl font-bold text-slate-800">{stats.best_score}</p>
+        </div>
+
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Bài thi có thể làm */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4">📝 Bài thi có thể làm</h2>
+        <div className="bg-white rounded-xl shadow p-6">
+          <h2 className="text-lg font-semibold mb-4 text-slate-800">📝 Bài thi có thể làm</h2>
           {availableExams.length === 0 ? (
             <p className="text-gray-500 text-center py-8">
               {stats.total_attempts === 0 ? 'Chưa có bài thi nào' : 'Bạn đã hoàn thành tất cả bài thi'}
